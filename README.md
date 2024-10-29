@@ -75,6 +75,37 @@ make -j3
 sudo make install
 ```
 
+## On Windows
+
+To run Neo on native Windows with MSYS2, try adding `#define _GNU_SOURCE` to `src/neo.cpp`. Without it, you'll encounter this error:
+
+```console
+neo.cpp: In function ‘void ParseArgs(int, char**, Cloud*, double*, bool*)’:
+neo.cpp:515:17: error: ‘strcasecmp’ was not declared in this scope; did you mean ‘strncmp’?
+  515 |             if (strcasecmp(optarg, "ascii") == 0) {
+      |                 ^~~~~~~~~~
+      |                 strncmp
+neo.cpp:575:17: error: ‘strcasecmp’ was not declared in this scope; did you mean ‘strncmp’?
+  575 |             if (strcasecmp(optarg, "green") == 0) {
+      |                 ^~~~~~~~~~
+      |                 strncmp
+neo.cpp: In function ‘int main(int, char**)’:
+neo.cpp:827:16: error: ‘strcasestr’ was not declared in this scope; did you mean ‘strstr’?
+  827 |     if (loc && strcasestr(loc, "UTF") != nullptr)
+      |                ^~~~~~~~~~
+      |                strstr
+make[1]: *** [Makefile:371: neo.o] Error 1
+```
+Based on www.github.com/jarun/nnn/issues/784, this may be a proper fix:
+
+```diff
+--- #ifdef __linux__
++++ #if defined(__linux__) || defined(MINGW) || defined(__MINGW32__) || defined(__MINGW64__) || defined(__CYGWIN__)
+```
+
+image
+
+
 ## Uninstalling
 
 To uninstall **neo**, run the following command from the directory where you built **neo**:
